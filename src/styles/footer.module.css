@@ -1,0 +1,53 @@
+.footer > div {
+  position:relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding: 4px 0;
+  margin: 0;
+  color: white;
+  width: 100%;
+  font-weight: bold;
+  font-size: 18px;
+  font-style: italic;
+}
+
+.footer > div > div {
+	padding:  0 3px;
+}
+
+.footer .controls {
+	flex-grow: 1;
+	height: 100%;
+	background: white;
+}
+
+.footer .controls > div {
+	padding: 0 6px;
+}
+
+.footer .controls .fa {
+	font-size: 36px;
+	margin:0;
+	vertical-align:top;
+}
+
+.footer .controls .controls__backward button .fa {
+	padding-right: 9px;
+}
+.footer .controls .controls__forward button .fa {
+	padding-left: 9px;
+}
+
+.footer .controls .controls__save button,
+.footer .controls .controls__main button,
+.footer .controls .controls__backward button, 
+.footer .controls .controls__forward button{
+	width:48px;
+	height:48px;
+	padding:0;
+}
+
+.footer .controls .fa-save {
+	font-size: 40px;
+}

@@ -1,0 +1,33 @@
+.details {
+  text-align: center;
+  padding: 50px 10px;
+  margin: 25px 0 0;
+  color: #fcfcfc;
+  height: 200px;
+}
+
+.details > div {
+  width: 100%;
+  overflow: hidden;
+  padding: 6px 0;
+}
+
+.details > div > span {
+  display: inline-block;
+  white-space: nowrap;
+  margin-left: 0px;
+  transition-property: margin-left;
+}
+
+.details > div.title {
+  font-weight:  bold;
+  font-size:  130%;
+}
+.details > div.artists {
+  padding-top:  3px;
+  font-size:  90%;
+  font-style: italic;
+}
+.details > div.album {
+  padding-top: 18px;
+}

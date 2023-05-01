@@ -1,0 +1,98 @@
+.my-tunes{
+  height: 705px;
+  width: 550px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+}
+
+.my-tunes .main-node {
+  height: 550px;
+  width: 550px;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.logo > div {
+  padding-right: 3px;
+}
+.logo-img {
+  height: 50px;
+  width: auto;
+}
+.form-container {
+  position: relative;
+  z-index: 20;
+}
+.form {
+  position:absolute;
+  transition: height .5s;
+  width: 550px;
+  overflow: hidden;
+  border-radius: 0 0 10px 10px;
+  background-color: #333333;
+  border-top-style: none;
+}
+.offline {
+  font-style: normal!important;
+  font-size: 75%!important;
+  font-weight: normal!important;
+}
+.offline a {
+  padding-left: 3px;
+  color: #ff8a3c;
+  font-style: italic!important;
+  cursor: pointer;
+}
+
+.modal {
+    position: absolute; 
+    top: 30px; 
+    left: 0; 
+    height: 585px; 
+    width: 550px; 
+    background-color: rgba(0,0,0,.6);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modal > div {
+    background-color: #FFFFFF;
+    border-radius: 10px;
+    padding: 6px;
+    font-size: 90%;
+}
+.modal > div > div {
+    padding: 3px 0;
+} 
+.modal h3 {
+    margin: 0;
+    padding: 3px 0;
+    text-transform: uppercase;
+    font-size: 90%;
+}
+input[type=radio] {
+    accent-color: #ff8a3c;
+}
+.submit {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.submit span {
+    flex-grow: 1;
+    text-align: center;
+}
+
+.submit button {
+    font-size: 75%;
+    font-weight: bold;
+    padding: 3px;
+}

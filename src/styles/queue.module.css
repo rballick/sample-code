@@ -1,0 +1,92 @@
+.queue-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: hidden;
+    align-items: center;
+}
+.queue-wrapper > div:not(.remove) {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: auto;
+    width: 100%;
+}
+.queue {
+    padding: 3px 0;
+    font-size: 80%;
+}
+.queue > div {
+    margin: 4px;
+    padding: 2px;
+    background-color: #fff;
+    border-radius: 4px;
+}
+.queue img {
+    height: 35px;
+    width: 35px;
+}
+
+.queue > div {
+    display: flex;
+}
+
+.queue > div > div:not(.actions) {
+    padding-left: 3px;
+    flex-grow: 1;
+    overflow: hidden;
+    font-size: 90%;
+}
+.artist, 
+.title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.title {
+    font-weight: bold;
+}
+.artist {
+    font-style: italic;
+}
+.queue > .actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+.remove {
+    padding: 6px 0 0;
+}
+.remove button {
+    border: none;
+    background-color: #ff8a3c;
+    border-radius: 3px;
+    padding: 6px;
+    text-transform: capitalize;
+}
+.actions {
+    white-space: nowrap;
+    display:flex;
+}
+.actions span {
+    padding-left: 6px;
+    cursor: pointer;
+    font-size: 125%;
+}
+.cache {
+    width: 18px;
+    height: 18px;
+    overflow: hidden;
+}
+.actions .cache > span {
+    display: inline-block;
+    position: relative;
+    right: -50%;
+    padding-left: 0px;
+} 
+.cache img {
+    height: 16px;
+    position: relative;
+    left: -50%;
+}

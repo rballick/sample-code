@@ -1,0 +1,80 @@
+.controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.controls.footer {
+    align-items: flex-end;
+    height: 60px;
+}
+.controls img {
+    margin: 15px;
+    height: 50px;
+    width: auto;
+}
+.controls > div {
+    border: 1px solid #ff8a3c;
+    margin: 0 10px
+}
+.controls.footer > div {
+    margin: 0 10px;
+}
+.controls > div.rounded {
+    border-radius: 100%;
+}
+.controls.footer img {
+    margin: 10px;
+    height: 30px;
+    width: auto;
+}
+.controls.footer .controls__main img {
+    margin: 10px 5px;
+}
+.controls__main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 5px;
+}
+.controls__main > div {
+    margin: 0 10px;
+}
+.controls__main > div {
+    margin: 0 10px;
+}
+.controls .controls__backward img {
+    margin-left: 12px;
+    margin-right: 18px;
+}
+.controls .controls__forward img {
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+    margin-right: 12px;
+    margin-left: 18px;
+}
+.controls.footer .controls__backward img {
+    margin-left: 8px;
+    margin-right: 12px;
+}
+.controls.footer .controls__forward img {
+    margin-right: 8px;
+    margin-left: 12px;
+}
+.controls.footer div.controls__save {
+    display: flex;
+    height: 51.6px;
+    align-items: center;
+    justify-content: center;
+    border-style: none;
+}
+.controls.footer div.controls__save img {
+    height: 51.6px;
+    width: auto;
+}
+.link {
+    cursor: pointer;
+}
+.link.inactive {
+    opacity: .65;
+    cursor: default;
+}

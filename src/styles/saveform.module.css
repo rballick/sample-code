@@ -1,0 +1,28 @@
+.save-form {
+    padding: 6px;
+}
+.save-form > div {
+    padding: 3px 0;
+    display: flex;
+    align-items: center;
+}
+.save-form span {
+    margin-right: 3px;
+}
+.save-form input {
+    flex-grow: 1;
+}
+.save-form label {
+    padding-right: 24px;
+    color: #ff8a3c;
+}
+.submit button {
+    margin: auto;
+}
+.save-form strong {
+    padding-right: 3px;
+    color: #ff8a3c;
+}
+input[type=radio] {
+    accent-color: #ff8a3c;
+}

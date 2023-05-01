@@ -1,0 +1,60 @@
+.list-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: auto;
+}
+.menu {
+    display: flex;
+    padding: 0 3px;
+}
+.menu > div {
+    flex-grow: 1;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 3px 6px;
+    border-bottom: 3px solid transparent;
+    font-size: 70%;
+    font-weight: bold;
+    cursor: pointer;
+    color: #ff8a3c;
+}
+.menu > div.active {
+    border-bottom-color: #ff8a3c;
+}
+.list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.list > div {
+    padding: 2px;
+    text-align: center;
+    cursor: pointer;
+}
+.list .img {
+    height: 100px;
+    width: 100px;
+    font-size: 70%;
+    background-size: 100px 100px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.img > div {
+    padding: 3px;
+}
+.list .remove{
+    padding: 2px 0;
+    font-size: 72%;
+    font-style: italic;
+    color: #ff8a3c;
+}
+.list .add {
+    font-size: 80%;
+    padding: 2px;
+    background-color: #ff8a3c;
+}

@@ -1,0 +1,35 @@
+html, body, #root {
+    margin: 0;
+    padding: 0;
+      height: 100%;
+    font-family: sans-serif;
+  }
+  html, body, * {
+      -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+body {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+button {
+    border: none;
+    background-color: #ff8a3c;
+    border-radius: 3px;
+    padding: 6px;
+    text-transform: capitalize;
+}
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #333333;
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb {
+  background: #ff8a3c;
+  border-radius: 5px;
+}
+input, select {
+  border-radius: 5px;
+}
