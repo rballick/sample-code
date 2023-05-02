@@ -53,8 +53,6 @@ export function QueueProvider(props) {
     }
 
     const removeFromQueue = (toRemove) => {
-        console.log('LOOK HERE');
-        console.log(toRemove);
         if (!Array.isArray(toRemove)) toRemove = [ toRemove ];
         const newIndices = {};
         let diff = 0;

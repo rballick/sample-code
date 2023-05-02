@@ -50,7 +50,7 @@ module.exports = {
 				exclude: /\.module\.css$/
 			},
 			{
-				test: /\.(png|jp(e?)g|svg|gif|mp3)$/,
+				test: /\.(png|jp(e?)g|svg|gif|mp3|webp)$/,
 				type: "asset/resource"
 			}
 		]

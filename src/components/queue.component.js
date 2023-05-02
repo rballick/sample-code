@@ -23,7 +23,7 @@ export default function Queue(props) {
         const image = item.artwork_url !== undefined ? item.artwork_url : item.composite_url;
         return image ? (item.isCached ? require(`../../public/assets/cache/images/${image}`) : setUrl(image)) : '';
     }
-if (queue.length) console.log(setActions(queue[0].actions));
+
     return(
         <div ref={queueRef} onScroll={onScroll}>
             <div className={setClassName('queue',styles)}>
