@@ -4,7 +4,7 @@ import axios from 'axios';
 export const apiUrl = 'http://localhost:8083/api';
 
 export default function useApi() { 
-    const [ isOffline, setIsOffline ] = useState(false);
+    const [ isOffline, setIsOffline ] = useState(true);
 
     const apiCall = async (url, method='get', params, config={}) => {
         method = method.toLowerCase();

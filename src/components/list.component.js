@@ -35,7 +35,7 @@ export default function List(props) {
 
     const setStyle = (item) => {
         const image = item.artwork_url !== undefined ? item.artwork_url : item.composite_url;
-        const src = image ? (`, url("${item.isCached ? require(`../../public/assets/cache/images/${image}`) : setUrl(image)}")`) : '';
+        const src = image ? `, url("${setUrl(image)}")` : '';
         return { backgroundImage: `linear-gradient( rgba(0, 0, 0, 0.40), rgba(0, 0, 0, 0.40))${src}` };
     }
 
@@ -43,7 +43,7 @@ export default function List(props) {
         <div ref={listRef} key={`${listType}-${filter}`} className={setClassName('list-wrapper', styles)} onScroll={onScroll}>
             <div className={setClassName('list',styles)}>
                 { list.map(item => 
-                    <div key={`${listType}-${item.id}`} onClick={() => onSelect(item.id)}>
+                    <div key={`${listType}-${item.id}`} id={item.id} onClick={onSelect}>
                         <div className={setClassName('img', styles)} style={setStyle(item)}>
                         { renderData(item) }
                         </div>

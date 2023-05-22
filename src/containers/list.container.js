@@ -2,21 +2,22 @@ import React, { useState, useEffect, useRef } from "react";
 import { List as ListComponent, Queue as QueueComponent } from '../components';
 import { setClassName, isScrollBottom } from "../utilities/utils";
 import { useQueue } from "../contexts/QueueContext";
+import { quickSort, setAlpha } from '../../shared/utils';
 
 import listStyles from '../styles/list.module.css';
 import queueStyles from '../styles/queue.module.css';
 
 export default function List(props) {
-    const { cache, updateType, apiCall, filter, updateFilter } = props;
+    const { isOffline, updateType, apiCall, filter, updateFilter, fileData, loading, links, disabled, play } = props;
     const { addToQueue, inQueue, removeFromQueue } = useQueue();
     const [ list, setList ] = useState([]);
     const [ reserve, setReserve ] = useState([]);
     const [ multiplier, setMultiplier ] = useState(0);
     const [ listNode, setListNode ] = useState(null);
-    const [ listType, setListType ] = useState()
+    const [ listType, setListType ] = useState();
+    const [ files, setFiles ] = useState({});
     const isLoaded = useRef(false);
     const isLoading = useRef(false);
-    const offlineMode = useRef();
     const limit = 100;
 
     useEffect(() => {
@@ -27,26 +28,7 @@ export default function List(props) {
     }, []);
 
     useEffect(() => {
-        if (listNode) listNode.scrollTo(0,0);
-        if (offlineMode.current !== undefined) {
-            if (multiplier === 0) {
-                getList(0, updateList, filter);
-            } else {
-                setMultiplier(0);
-            }
-        }
-        offlineMode.current = cache !== null;
-    }, [ cache ]);
-
-    useEffect(() => {
-        updateFilter('');
-        if (multiplier === 0) {
-            getList(0, updateList, filter);
-        } else {
-            setMultiplier(0);
-        }
-        setList([]);
-        setListType(props.listType);
+        resetList();
     }, [ props.listType ]);
 
     useEffect(() => {
@@ -60,24 +42,40 @@ export default function List(props) {
         } else {
             setMultiplier(0);
         }
-    }, [ filter ])
+    }, [ filter ]);
 
-    const getCache = () => {
-        const filterData = (item) => {
-            if (filter.length === 0) return true;
-            return (item.name || item.title).toLowerCase().includes(filter.toLowerCase());
+    useEffect(() => {
+        setFiles(Object.keys(fileData).reduce((obj, key) => {
+            const files = Object.values(fileData[key]);
+            return { ...obj, [key]: quickSort(files, setAlpha, Object.keys(files[0]).includes('title') ? 'title' : 'name') };
+        },{}));
+    }, [ fileData ]);
+
+    useEffect(() => {
+        if (files[listType]) resetList();
+    }, [ files ]);
+
+    const resetList = () => {
+        updateFilter('');
+        if (multiplier === 0) {
+            getList(0, updateList, filter);
+        } else {
+            setMultiplier(0);
         }
-        return cache[props.listType || props.listType].filter(filterData).slice(multiplier * limit,(multiplier + 1) * limit);
+        setList([]);
+        setListType(props.listType);
     }
 
     async function getList (offset, callback){
         const params = Array.from(arguments).slice(2);
-        if (cache) return callback(getCache(), ...params);
-        let url = `${props.listType}?offset=${offset}&limit=${limit}`;
-        if (filter.length) url = `${url}&filter=${filter}`;
-        let results = await apiCall(url);
-        if (results.error) return;
-        if (isLoaded.current) callback(results.data, ...params);
+        if (files[props.listType]) callback(files[props.listType].filter(item => (item.title || item.name || '').toLowerCase().includes(filter.toLowerCase())).slice(offset, offset + limit), ...params);
+        if (!isOffline) {
+            let url = `${props.listType}?offset=${offset}&limit=${limit}`;
+            if (filter.length) url = `${url}&filter=${filter}`;
+            let results = await apiCall(url);
+            if (results.error) return;
+            if (isLoaded.current) callback(results.data, ...params);
+        }
     }
 
     const multiplierChange = () => {
@@ -115,24 +113,36 @@ export default function List(props) {
         }
     }
 
-    const addTracks = async (id) => {
-        const getCache = (id) => {
-            if (listType === 'track') return cache.track.find(track => track.id === id);
-            return cache.track.filter(track => track[`${listType}_ids`].includes(Number(id)));
+    const onSelect = e => {
+        let elem = e.target;
+        let replace = false;
+        while (elem !== e.currentTarget) {
+            replace = replace || elem.classList.contains('img');
+            elem = elem.parentElement;
         }
-        if (cache) return addToQueue(getCache(id));
-        if (listType === 'track') return addToQueue(list.find(item => item.id === id));
+        addTracks(e.currentTarget.id, replace);
+    }
+
+    const addTracks = async (id, replace) => {
+        const method = replace ? play : addToQueue;
+        if (['file','track'].includes(listType)) {
+            if (!replace) return method(list.find(item => item.id === id), id);
+            if (files[listType]) return method(files[listType], id);
+            return;
+        }
+        if (files[listType]) return method(files[listType].find(item => item.id === id).tracks.map(id => fileData.track[id])); 
         let results = await apiCall(`${listType}/${id}/tracks`);
-        if (results.error) results = { data: getCache(id) };
-        if (isLoaded.current) addToQueue(results.data);
+        if (results.error) return;
+        if (isLoaded.current) method(results.data);
     }
 
     const properties = { 
         ...props,
         onScroll: loadData, 
+        onSelect,
         onLoad: (node) => setListNode(node)
     }
-    if (listType === 'track') {
+    if (['track', 'file'].includes(listType)) {
         const queueIndices = inQueue();
         Object.assign(properties, {
             styles: queueStyles, 
@@ -149,20 +159,20 @@ export default function List(props) {
     } else {
         Object.assign(properties, {
             list, 
-            styles: listStyles,  
-            onSelect: addTracks,
+            styles: listStyles
         });
     }
 
     return (
         <>
-        <div className={setClassName('menu', listStyles)}>
-            { ['album','genre','creative','performer','track','playlist'].sort().map(item => <div key={`menu-${item}`} className={setClassName(listType === item ? 'active' : '', listStyles)} onClick={() => updateType(item)}>{item}</div>)}
+        <div className={setClassName(['menu'], listStyles)}>
+            { links.sort().map(item => <div key={`menu-${item}`} className={setClassName([disabled.includes(item) ? 'disabled' : (listType === item ? 'active' : '')], listStyles)} onClick={() => { return disabled.includes(item) ? null : updateType(item) } }>{item}</div>)}
         </div>
         {
-        (listType === 'track' ?
+        (['file','track'].includes(listType) ?
         <div className={setClassName('queue-wrapper', queueStyles)}>
             <QueueComponent { ...properties } />
+            { loading && <div className={setClassName('loading', queueStyles)}><span>Loading</span></div> }
         </div>
         :
         <ListComponent { ...properties } />)

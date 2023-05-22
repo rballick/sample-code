@@ -9,11 +9,13 @@ import Stop from '../../public/assets/player/stop.svg';
 import Repeat from '../../public/assets/player/repeat-bold.svg';
 import RepeatOne from '../../public/assets/player/repeat-once-bold.svg';
 import Shuffle from '../../public/assets/player/shuffle-bold.svg';
+import Maximize from '../../public/assets/player/maximize.svg';
+import Minimize from '../../public/assets/player/minimize.svg';
 
 import styles from '../styles/controls.module.css';
 
 export default function Controls(props) {
-    const { reverseActive, prevClick, playActive, playClick, stopActive, stopClick, shuffleActive, shuffleClick, nextClick, forwardActive, playAction, repeatAction, repeatClick } = useControls();
+    const { reverseActive, prevClick, playActive, playClick, stopActive, stopClick, shuffleActive, shuffleClick, nextClick, forwardActive, playAction, repeatAction, repeatClick, maxActive, maxAction } = useControls();
     return(
         <div className={setClassName(['controls', props.footer ? 'footer' : ''], styles)}>
           <div className={setClassName(['controls__backward', 'rounded'], styles)}>
@@ -28,6 +30,7 @@ export default function Controls(props) {
           <div className={setClassName(['controls__forward', 'rounded'], styles)}>
               <img className={setClassName(['link', forwardActive ? '' : 'inactive'], styles)} src={Rewind} alt="next" onClick={nextClick} />
           </div>
+          <div className={setClassName(['max-min'], styles)}><img className={setClassName(['link', maxActive ? '' : 'inactive'], styles)} src={props.footer ? Maximize : Minimize} onClick={maxAction} /></div>
         </div>
     );
 }

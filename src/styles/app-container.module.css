@@ -1,5 +1,5 @@
 .my-tunes{
-  height: 705px;
+  height: 643px;
   width: 550px;
   overflow: hidden;
   display: flex;
@@ -8,11 +8,14 @@
 }
 
 .my-tunes .main-node {
-  height: 550px;
+  height: 488px;
   width: 550px;
   display: flex;
   flex-direction: column;
   z-index: 10;
+}
+.my-tunes .main-node.player {
+    height: 550px;
 }
 .logo {
   display: flex;

@@ -5,7 +5,7 @@ module.exports = {
 	entry: path.join(__dirname, "src", "index.js"),
 	output: {
 		path: path.resolve(__dirname, "build"),
-		filename: './index.bundle.js',
+		filename: './index.[fullhash].js',
 		publicPath: ''
 	},
 	devServer: {
@@ -18,7 +18,8 @@ module.exports = {
             path.resolve(__dirname, 'dist'),
             path.resolve(__dirname, 'node_modules'),
             path.resolve(__dirname, 'build'),
-            path.resolve(__dirname, 'cache')
+            path.resolve(__dirname, 'public'),
+            path.resolve(__dirname, 'shared')
         ]
     },
     module: {

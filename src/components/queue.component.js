@@ -13,30 +13,30 @@ export default function Queue(props) {
         e.target.style.visibility = 'hidden';
     }
 
-    const setActions = (actions, onSelect) => {
+    const setActions = (actions) => {
         if (actions) return actions;
-        if (onSelect) return [{ ...onSelect }];
         return [];
     }
 
     const setImageSrc = (item) => {
         const image = item.artwork_url !== undefined ? item.artwork_url : item.composite_url;
-        return image ? (item.isCached ? require(`../../public/assets/cache/images/${image}`) : setUrl(image)) : '';
+        return image ? setUrl(image) : '';
     }
 
     return(
-        <div ref={queueRef} onScroll={onScroll}>
+        <div style={{ position:'relative'/*, border: '3px solid red'*/}} ref={queueRef} onScroll={onScroll}>
+            { false && <div style={{position: 'absolute', left: '0px', bottom:'0px', width:'100%', height:'30px', border:'2px solid green'}}></div>}
             <div className={setClassName('queue',styles)}>
             { (queue || []).map((item, index) => 
                 <div key={`${item.id}-${index}`}>
                     <img src={setImageSrc(item)} onError={hideImage} />
-                    <div>
-                        <div className={setClassName('title', styles)}>{item.title}</div>
-                        <div className={setClassName('artist', styles)}>{item.artists}</div>
-                        <div className={setClassName('year', styles)}>{item.year}</div>
+                    <div id={item.id} onClick={onSelect}>
+                        <div className={setClassName(['title','img'], styles)}>{item.title}</div>
+                        { item.artists &&  <div className={setClassName(['artist','img'], styles)}>{item.artists}</div> }
+                        { item.year && <div className={setClassName(['year','img'], styles)}>{item.year}</div> }
                     </div>
                     <div className={setClassName('actions', styles)}>
-                        { setActions(item.actions, onSelect, index).map((action, i) => {
+                        { setActions(item.actions,index).map((action, i) => {
                             return <span key={`${type}-${index}-${i}`} onClick={() => action.method(...(action.params || [index]))}>{ action.label }</span>
                         })}
                     </div>

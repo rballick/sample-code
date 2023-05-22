@@ -11,8 +11,8 @@ export default function Player(props) {
     const style = {};
 
     if (isPlaying()) {
-        const { artwork_url, isCached } = track;
-        const src = artwork_url ? (`, url("${isCached ? require(`../../public/assets/cache/images/${artwork_url}`) : setUrl(artwork_url)}")`) : '';
+        const { artwork_url } = track;
+        const src = artwork_url ? `, url("${setUrl(artwork_url)}")` : '';
         style.backgroundImage = `linear-gradient( rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65))${src}`;
     }
 
@@ -29,7 +29,7 @@ export default function Player(props) {
             	muted={isMuted()}
                 volume={volume}
                 muteClick={toggleMute} 
-                volumeChange={(e) => updateVolume(e.target.value)}
+                volumeChange={(e) => updateVolume(e.target.value / 100)}
             />
             <Progress onClick={progress} elapsed={elapsed} duration={duration} isPlaying={isPlaying()} />
         </div>

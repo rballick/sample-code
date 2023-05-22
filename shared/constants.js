@@ -2,6 +2,7 @@ module.exports = {
     channels: {
         WIN_CLOSE: 'win_close',
         WIN_MIN: 'win_min',
-        GET_CACHE: 'get_cache',
+        IMPORT_FILES: 'import_files',
+        GET_FILE: 'get_file'
     },
   };

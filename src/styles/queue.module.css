@@ -4,6 +4,7 @@
     flex-grow: 1;
     overflow: hidden;
     align-items: center;
+    position: relative;
 }
 .queue-wrapper > div:not(.remove) {
     display: flex;
@@ -73,20 +74,4 @@
     padding-left: 6px;
     cursor: pointer;
     font-size: 125%;
-}
-.cache {
-    width: 18px;
-    height: 18px;
-    overflow: hidden;
-}
-.actions .cache > span {
-    display: inline-block;
-    position: relative;
-    right: -50%;
-    padding-left: 0px;
-} 
-.cache img {
-    height: 16px;
-    position: relative;
-    left: -50%;
 }

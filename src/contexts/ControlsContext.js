@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const ControlsContext = createContext(null);
 
 export function ControlsProvider(props) {
-    const { length, playing, paused, shuffled, hasNext, hasPrev, getCurrent, getNext, getPrev, play, stop, shuffle, pause, repeat, repeatClick } = props;
+    const { length, playing, paused, shuffled, hasNext, hasPrev, getCurrent, getNext, getPrev, play, stop, shuffle, pause, repeat, repeatClick, maxAction } = props;
     const forward = playing && hasNext;
     const reverse = playing && hasPrev;
 
@@ -36,7 +36,9 @@ export function ControlsProvider(props) {
         stopClick: stop,
         shuffleClick: shuffle,
         nextClick,
-        repeatClick
+        repeatClick,
+        maxAction,
+        maxActive: length > 0
     }
 
     return (

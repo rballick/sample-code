@@ -118,6 +118,26 @@ export function QueueProvider(props) {
         }, []));
     }
 
+    const replaceQueue = (replacement, index = 0) => {
+        if (replacement.length === 0) {
+            setQueue([]);
+            setIndices([]);
+            setPlayed([]);
+            setCurrentIndex([]);
+            return null;
+        }
+        if (index === -1) index = shuffle ? Math.floor(Math.random() * replacement.length) : 0;
+        const selected = replacement[index];
+        setQueue([ ...replacement ]);
+        const indices = Object.keys(replacement).map(i => Number(i));
+        if (shuffle) indices.sort(() => Math.random() - 0.5);
+        const i = indices.indexOf(index);
+        setPlayed(indices.splice(0, i + 1).reverse());
+        setIndices([ ...indices ]);
+        setCurrentIndex(0);
+        return selected;
+    }
+
     const removeDups = () => {
         const ids = [];
         const indexes = queue.reduce((obj, item, index) => {
@@ -213,6 +233,7 @@ export function QueueProvider(props) {
     }
 
     const createPlayQueue = () => {
+        if (!queue.length) return false;
         let keys = Array.from(Array(queue.length).keys());
         let key;
         if (shuffle) {
@@ -241,7 +262,7 @@ export function QueueProvider(props) {
     const toggleRepeat = () => setRepeat(current => !current);
 
     return (
-        <QueueContext.Provider value={{ updateQueue, getQueue, toggleShuffle, isShuffled, createPlayQueue, clearPlayQueue, prev, next, getLength, addToQueue, removeFromQueue, removeDups, hasNext, hasPrev, inQueue, removed, toggleRepeat, repeat, queue }}>
+        <QueueContext.Provider value={{ updateQueue, getQueue, toggleShuffle, isShuffled, createPlayQueue, clearPlayQueue, prev, next, getLength, addToQueue, removeFromQueue, removeDups, hasNext, hasPrev, inQueue, removed, toggleRepeat, repeat, queue, replaceQueue }}>
             { props.children }
         </QueueContext.Provider>
     )

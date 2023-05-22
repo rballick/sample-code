@@ -4,25 +4,33 @@
   align-items: center;
   color: #ff8a3c;
   width: 100%;
-  font-style: italic;
   padding: 6px 3px;
   background-color: #333333;
+}
+.header > div:not(.loading) {
+    font-size: 95%;
+    cursor: pointer;
+    padding: 3px 6px;
+    border-radius: 5px;
+}
+
+.linklist > div:hover,
+.header > div.hovered {
+    border-radius: 5px;
+    background-color: rgba(255,255,255,.1);
+    cursor: pointer;
 }
 .header span {
   padding: 0 2px;
   cursor: pointer;
 }
-.header .middle {
+.header input {
   flex-grow: 1;
-  display: flex;
-  justify-content: center;
+  margin-left: 6px;
 }
-.middle input {
-  flex-grow: 1;
-}
-.header span.disabled {
+.disabled {
   opacity: .5;
-  cursor: default;
+  cursor: default !important;
 }
 .draggable {
   background: #eef4f9;
@@ -69,3 +77,86 @@
 .button.close:hover { background: #c42b1c; color: white; }
 .button.minimize:hover { background: #e6eaef; } 
 .button.maximize:hover { background: #4EBD06; }
+
+.save {
+    flex-grow: 1;
+    text-align: right;
+    padding: 0 3px;
+}
+.save img {
+    height: 13px;
+    width: 15px;
+}
+.linklist {
+    position: absolute;
+    padding: 6px 2px;
+    display: flex;
+    flex-direction: column;
+    z-index: 10000000;
+    background-color: #333333;
+    font-size: 80%;
+    color: #ff8a3c; 
+    border: 1px solid #a65a27;
+    border-radius: 3px;
+}
+.linklist > div {
+    display: flex;
+}
+.linklist span {
+    padding: 3px 12px;
+}
+.linklist .link {
+    flex-grow: 1;
+}
+.link {
+    text-transform: capitalize;
+}
+.loading {
+    flex-grow: 1;
+    display: inline-block;
+    color: fieldtext;
+    letter-spacing: normal;
+    word-spacing: normal;
+    line-height: normal;
+    text-transform: none;
+    text-indent: 0px;
+    text-shadow: none;
+    display: inline-block;
+    text-align: start;
+    appearance: auto;
+    -webkit-rtl-ordering: logical;
+    cursor: text;
+    background-color: field;
+    margin: 0em;
+    padding: 1px 2px;
+    border-width: 2px;
+    border-style: inset;
+    border-color: -internal-light-dark(rgb(118, 118, 118), rgb(133, 133, 133));
+    border-image: initial;
+    font-style: italic;
+    border-radius: 5px;
+    margin-left: 6px;
+  }
+  
+  .loading > span:after {
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: bottom;
+    -webkit-animation: ellipsis steps(4,end) 1500ms infinite;      
+    animation: ellipsis steps(4,end) 1500ms infinite;
+    content: "\2026"; /* ascii code for the ellipsis character */
+    width: 0px;
+  }
+  
+  @keyframes ellipsis {
+    to {
+      width: 1.25em;    
+    }
+  }
+  
+  @-webkit-keyframes ellipsis {
+    to {
+      width: 1.25em;    
+    }
+  }
+

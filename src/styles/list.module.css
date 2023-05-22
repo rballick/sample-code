@@ -58,3 +58,7 @@
     padding: 2px;
     background-color: #ff8a3c;
 }
+.disabled {
+    opacity: .5;
+    cursor: default !important;
+  }

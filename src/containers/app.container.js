@@ -9,34 +9,60 @@ import useApi from '../hooks/useApi';
 import usePrevious from '../hooks/usePrevious';
 import { setClassName } from '../utilities/utils';
 import { channels } from '../../shared/constants';
+import { quickSort } from '../../shared/utils';
+const { Promise: nodeID3 } = window.require('node-id3');
 const { ipcRenderer } = window.require('electron');
 
+import genreImage from '../../public/assets/genre.jpg'
+import albumImage from '../../public/assets/album.jpg'
+import artistImage from '../../public/assets/artist.jpg'
+import trackImage from '../../public/assets/track.jpg'
 import logo from '../../public/assets/icon.png';
 import styles from '../styles/app-container.module.css';
 
 function AppContainer () {
 	const { togglePause, stop, play, isPaused, isPlaying, isFinished, error } = useSound();
-	const { updateQueue, getQueue, toggleShuffle, isShuffled, createPlayQueue, clearPlayQueue, prev, next, getLength, hasNext, hasPrev, removed, toggleRepeat } = useQueue();
+	const { updateQueue, getQueue, toggleShuffle, isShuffled, createPlayQueue, clearPlayQueue, prev, next, getLength, hasNext, hasPrev, removed, toggleRepeat, replaceQueue } = useQueue();
 	const api = useApi();
+    const files = useRef([]);
+    const tagged = useRef({});
 	const { setUrl, ping, isOffline, apiCall } = api;
 	const [ viewType, setViewType ] = useState('list');
 	const [ listType, setListType ] = useState('track');
 	const [ isFormOpen, setIsFormOpen ] = useState(false);
 	const [ filter, setFilter ] = useState('');
 	const [ track, setTrack ] = useState();
+    const [ filesUpdated, setFilesUpdated ] = useState(new Date().getTime());
+    const [ fileData, setFileData ] = useState({});
     const [ repeat, setRepeat ] = useState(0);
     const [ playlists, setPlaylists ] = useState([]);
-    const [ cache, setCache ] = useState(null);
-    const prevCache = usePrevious(cache);
+    const [ loading, setLoading ] = useState(false);
+    const prevView = usePrevious(viewType);
+    const viewPrev = useRef();
     const isLoaded = useRef(false)
 	const length = getLength();
+    const tagLength = 500;
 
     useEffect(() => {
 		ping();
         isLoaded.current = true;
-        ipcRenderer.on(channels.GET_CACHE, (e, objCache) => {
-            setCache(objCache);
-        });
+        ipcRenderer.on(channels.IMPORT_FILES, (e, results, replace) => {
+            if (replace) {
+                setFileData({});
+                tagged.current = {};
+                files.current = [];
+                replaceAndPlay([]);
+            }
+            files.current.push(...results.map(file => {
+                const name = file.split('/').pop();
+                return { id: file, name, title: name, stream_url: file, isFile: true, artwork_url: trackImage };
+            }));
+            setFilesUpdated(new Date().getTime());
+        } );
+        ipcRenderer.on(channels.GET_FILE, (e, filedata) => {
+            const blob = new Blob( [ Buffer.from(filedata) ], { type: "audio/mpeg" } );
+            play(URL.createObjectURL(blob));
+        })
         return () => {
             isLoaded.current = false;
             ipcRenderer.removeAllListeners();
@@ -44,11 +70,17 @@ function AppContainer () {
     }, [ ]);
 
     useEffect(() => {
+        setLoading(files.current.length > 0);
+        if (files.current.length) getTags();
+    }, [ filesUpdated ]);
+
+    useEffect(() => {
         if (error) {
             hasNext() ? playTrack(next()) : stopTrack();
             ping();
         }
     }, [ error ]);
+
 
     useEffect(() => {
         if (repeat) toggleRepeat();
@@ -63,7 +95,7 @@ function AppContainer () {
             if (isPlaying()) stopTrack();
             setViewType('list');
         }
-	}, [ length ])
+	}, [ length ]);
 
 	useEffect(() => {
 		if (isOffline) {
@@ -71,7 +103,6 @@ function AppContainer () {
         } else {
             getPlaylists();
         }
-        changeMode();
 	}, [isOffline ])
 
     useEffect(() => {
@@ -79,14 +110,77 @@ function AppContainer () {
 	}, [ isFinished ]);
 
     useEffect(() => {
-        if (prevCache === null && getQueue().length) updateQueue(cache.track.filter(item => getQueue().map(item => item.id).includes(item.id))); 
-    }, [cache])
+        if (viewType !== prevView) viewPrev.current = prevView;
+    }, [ viewType ]);
 
-    const changeMode = async () => {
-        if (isOffline) return ipcRenderer.send(channels.GET_CACHE);
-        if (getQueue().length) updateQueue((await apiCall(`track?id=${getQueue().map(item => item.id).join(',')}`)).data);
-        setCache(null);
-    };
+    useEffect(() => {
+        const queue = getQueue();
+//                updateQueue(current => current.filter(item => !Object.keys(tagged).includes(item.id)));
+    }, [ fileData ]);
+
+    const getTags = async () => {
+        const readTag = async (file) => {
+            let tags;
+            try {
+                tags = nodeID3.read(file.stream_url);
+            } catch (e) {
+                tags = {}
+            } finally {
+                return tags;
+            }
+        }
+        const images = {
+            album: albumImage,
+            performer: artistImage,
+            genre: genreImage
+        }
+        const setTags = (tags) => {
+            return tags.reduce((obj, item, i) => {
+                item.album_year = item.year;
+                if (item.comment && !isNaN(item.comment.text) && item.comment.text.length === 4) item.album_year = item.comment.text;
+                item.artists = item.artist;
+                item.album_artist = item.performerInfo || item.artists; 
+                if (item.image) {
+                    const blob = new Blob( [ item.image.imageBuffer ], { type: "image/jpeg" } );
+                    item.artwork_url = URL.createObjectURL(blob);
+                }
+                const data = { ...files.current[i], ...item}
+                tagged.current[item.id] = data;
+                if (isOffline) {
+                    delete data.name;
+                    data.performer = data.artists;
+                    if (!obj.track) obj.track = {};
+                    obj.track[data.id] = data;
+                    const types = ['performer', 'genre', 'album'];
+                    for (let t = 0; t < types.length; t++) {
+                        const item = data[types[t]];
+                        if (!item) continue;
+                        if (!obj[types[t]]) obj[types[t]] = {};
+                        const ids = item.split(';');
+                        for (let i = 0; i < ids.length; i++) {
+                            const id = ids[i];
+                            if (!obj[types[t]][id]) {
+                                obj[types[t]][id] = { id, tracks: [] };
+                                Object.assign(obj[types[t]][id], types[t] === 'album' ? { ...data, ...{ title: data.album, year: data.album_year } } : { name: id });
+                                if (types[t] !== 'album' || data.artwork_url === trackImage) obj[types[t]][id].artwork_url = images[types[t]];
+                            }
+                            obj[types[t]][id].tracks.push(data.id);
+                        }
+                    }
+                } else {
+                    if (!obj.file) obj.file = {};
+                    obj.file[data.id] = data;
+                }
+                return obj 
+            }, { ...fileData })
+        }
+        const promises = files.current.slice(0,tagLength).map(file => readTag(file));
+        Promise.all(promises)
+        .then(results => setTags(results))
+        .then(results => setFileData(results))
+        .then(() => files.current = files.current.slice(tagLength))
+        .then(() => setFilesUpdated(new Date().getTime()))
+    }
 
     const getPlaylists = async () => {
         let results = await apiCall('playlist');
@@ -120,12 +214,17 @@ function AppContainer () {
         }
     }
 
-	const playTrack = (track) => {
-        if (length === 0 ) return;
+    const replaceAndPlay = (replacement, id = '') => {
+        playTrack(replaceQueue(replacement, replacement.findIndex(item => item.id === id)));
+    }
+
+    const playTrack = (track) => {
+        if (tagged.current[track?.id]) track = tagged.current[track.id];
         setTrack(track);
         if (!track) return stopTrack();
-        play(track.isCached ? require(`../../public/assets/cache/audio/${track.stream_url}`) : setUrl(track.stream_url));
-	}
+        if (track.isFile) return ipcRenderer.send(channels.GET_FILE, track.stream_url);
+        play(setUrl(track.stream_url));
+    }
 
 	const stopTrack = () => {
 		stop();
@@ -136,6 +235,18 @@ function AppContainer () {
 	const updateView = (view) => {
         if (view === 'list' || length) setViewType(view);
         return false;
+    }
+
+    const updateType = (type) => {
+        setListType(type)
+    }
+
+    const maximizePlayer = () => {
+        if (length === 0) return;
+        if (viewType === 'player') {
+            return setViewType(viewPrev.current);
+        }
+        setViewType('player');
     }
 
 	const updateFilter = (e) => setFilter(typeof e === 'object' ? e.target.value : e);
@@ -161,27 +272,40 @@ function AppContainer () {
         pause: togglePause,
         shuffle: toggleShuffle,
         repeatClick: () => setRepeat(current => current === 1 ? -1 : current + 1),
-        repeat
+        repeat,
+        maxAction: maximizePlayer 
     }
 
-	const props = {
+    let links = ['album','genre','performer', 'track'];
+    if (Object.values(fileData.files || {}).length && !isOffline) links.push('file');
+    if (!isOffline) links.push('creative', 'playlist','track');
+    links = quickSort(links);
+
+    const disabled = links.filter(item => isOffline && !fileData[item]);
+    if (length === 0) disabled.push('queue');
+    const props = {
 		header: {
 			viewType,
 			updateView,
-			disabled: length ? [] : ['queue','player'],
+            updateType,
+			disabled,
             isOffline,
-            logo
+            loading,
+            logo,
+            queue: getQueue()
 		},
 		body: {
 			...api,
+            play: replaceAndPlay
 		}
 	}
+
     if (viewType === 'list') {
-		Object.assign(props.header, { listType, filter, updateFilter });
-		Object.assign(props.body, { listType, cache, updateType: (type) => setListType(type), filter, updateFilter } )
+		Object.assign(props.header, { listType, filter, updateFilter, loading: loading && listType === 'file', viewLink: {queue: ['queue']}, disabled});
+		Object.assign(props.body, { isOffline, fileData, listType, updateType, filter, updateFilter, links, disabled } )
 	}
 	if (viewType === 'queue') {
-		Object.assign(props.header, { isFormOpen, openForm: () => setIsFormOpen(!isFormOpen) })
+		Object.assign(props.header, { isFormOpen, openForm: () => setIsFormOpen(!isFormOpen), viewLink: {list: links } })
 	}
 	if (viewType === 'player') {
 		Object.assign(props.body, { track });
@@ -189,13 +313,13 @@ function AppContainer () {
 	return (
 		<ControlsProvider {...controls} >
 		<div className={setClassName("my-tunes",styles)}>
-			<Header { ...props.header } />
+			<Header { ...props.header } loading={loading} />
 			{ viewType == 'queue' && <div className={setClassName('form-container', styles)}>
 				<div className={setClassName('form', styles)} style={{height: `${isFormOpen ? 95 : 0}px`}}>
 					<SaveForm playlists={playlists} onSubmit={savePlaylist} />
 				</div>
 			</div> }
-			<div className={setClassName('main-node', styles)} style={{visibility: 'visible'}}>{ Module && <Module { ...props.body } /> }</div>
+			<div className={setClassName(['main-node', viewType], styles)} style={{visibility: 'visible'}}>{ Module && <Module { ...props.body } /> }</div>
 			<Footer player={viewType === 'player'}>
 				<div>
 				{ viewType === 'player' ? 
